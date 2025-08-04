@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>sport point</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
+  <style>
+    #map { height: 100vh; margin: 0; }
+    #telegram-link {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+    }
+
+    #telegram-link img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+
+    #telegram-link img:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <a href="https://t.me/sportpointkg" target="_blank" id="telegram-link">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" />
+  </a>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+  <script>
+    const map = L.map('map').setView([42.8746, 74.5698], 13);
+    map.locate({ setView: true, maxZoom: 16 });
+
+    let userLatLng = null;
+
+    function onLocationFound(e) {
+      const radius = e.accuracy;
+      userLatLng = e.latlng;
+
+      L.circle(e.latlng, radius, {
+        color: "blue",
+        fillColor: "#30f",
+        fillOpacity: 0.2
+      }).addTo(map);
+
+      L.marker(e.latlng).addTo(map)
+        .bindPopup("Вы здесь 🧍")
+        .openPopup();
+    }
+
+    function onLocationError(e) {
+      alert("Не удалось определить местоположение, включите геолокацию и перезайдите на сайт для отображения вашего местоположения на карте");
+    }
+
+    map.on('locationfound', onLocationFound);
+    map.on('locationerror', onLocationError);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors, Tiles: Humanitarian OSM'
+    }).addTo(map);
+
+    const markers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
+
+    function calculateDistance(latlng1, latlng2) {
+      return map.distance(latlng1, latlng2);
+    }
+
+    const icons = {
+      photoIcon1: L.icon({
+        iconUrl: 'https://i.ibb.co/gLb80nwq/243d3b5b1acca754d74f6bc17dedda1e.png',
+        iconSize: [20, 20],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -60]
+      }),
+      photoIcon2: L.icon({
+        iconUrl: 'https://i.ibb.co/gLb80nwq/243d3b5b1acca754d74f6bc17dedda1e.png',
+        iconSize: [20, 20],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -60]
+      }),
+      photoIcon4: L.icon({
+        iconUrl: 'https://i.ibb.co/YFh1XjZy/4393832a52139818fa9983852340f152.png',
+        iconSize: [20, 20],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -60]
+      }),
+      photoIcon5: L.icon({
+        iconUrl: 'https://i.ibb.co/Q79KcXm6/21f589fb6088af7c513c29afc2ae9059.png',
+        iconSize: [20, 20],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -60]
+      })
+    };
+
+    const markerData = [
+      {
+        coords: [42.829466, 74.594220],
+        icon: icons.photoIcon1,
+        html: `
+          <strong>Площадка "Ынтымак"</strong><br>
+          🏀 Отличная площадка, с асфальтом.<br>
+          <img src="https://i.ibb.co/chPVns5K/83e1368238c17f32ce33ff9419f85061.jpg" width="100" style="margin-top: 8px; border-radius: 10px;" />
+          <p style="margin-top: 5px;">Хорошая площадка, асфальт нормальный.</p>
+        `
+      },
+      {
+        coords: [42.810456792759624, 74.56849559715907],
+        icon: icons.photoIcon2,
+        html: `
+          <strong>Площадка Ынтымак</strong><br>
+          ⚽ Футбольное поле, сетка, искуссте покрытие<br>
+          <img src="https://i.ibb.co/vxZV5yx/sample2.jpg" width="100">
+        `
+      },
+      {
+        coords: [42.829441, 74.594900],
+        icon: icons.photoIcon4,
+        html: `
+          <strong>Площадка Ынтымак</strong><br>
+          ⚽ Футбольное поле, сетка, искусственное покрытие<br>
+          <img src="https://i.ibb.co/YFh1XjZy/4393832a52139818fa9983852340f152.png" width="100">
+          <p style="margin-top:5px;">Площадка с воротами и освещением</p>
+        `
+      },
+      {
+        coords: [42.829500, 74.594450],
+        icon: icons.photoIcon5,
+        html: `
+          <strong>Площадка Ынтымак</strong><br>
+          ⚽ Футбольное поле, сетка, искусственное покрытие<br>
+          <img src="https://i.ibb.co/vxZV5yx/sample2.jpg" width="100">
+        `
+      }
+    ];
+
+    markerData.forEach(data => {
+      const marker = L.marker(data.coords, { icon: data.icon });
+
+      marker.on('click', function (e) {
+        let popupContent = data.html;
+
+        if (userLatLng) {
+          const distance = calculateDistance(userLatLng, e.latlng).toFixed(0);
+          popupContent += `<br><strong>Расстояние:</strong> ${distance} м`;
+        } else {
+          popupContent += `<br><em>Геолокация не определена</em>`;
+        }
+
+        marker.bindPopup(popupContent).openPopup();
+      });
+
+      markers.addLayer(marker);
+    });
+
+    map.addLayer(markers);
+  </script>
+</body>
+</html>
