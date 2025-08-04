@@ -1,0 +1,114 @@
+<script>
+  const map = L.map('map').setView([42.8746, 74.5698], 13);
+  map.locate({ setView: true, maxZoom: 16 });
+
+  let userLatLng = null;
+
+  function onLocationFound(e) {
+    userLatLng = e.latlng;
+    const radius = e.accuracy;
+
+    L.circle(e.latlng, radius, {
+      color: "blue",
+      fillColor: "#30f",
+      fillOpacity: 0.2
+    }).addTo(map);
+    L.marker(e.latlng).addTo(map)
+      .bindPopup("Вы здесь 🧍")
+      .openPopup();
+  }
+
+  function onLocationError(e) {
+    alert("Не удалось определить местоположение, включите геолокацию и перезайдите на сайт");
+  }
+
+  map.on('locationfound', onLocationFound);
+  map.on('locationerror', onLocationError);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors, Tiles: Humanitarian OSM'
+  }).addTo(map);
+
+  const markers = L.markerClusterGroup({ disableClusteringAtZoom: 17 });
+
+  const iconUrls = [
+    'https://i.ibb.co/gLb80nwq/243d3b5b1acca754d74f6bc17dedda1e.png',
+    'https://i.ibb.co/gLb80nwq/243d3b5b1acca754d74f6bc17dedda1e.png',
+    'https://i.ibb.co/gLb80nwq/243d3b5b1acca754d74f6bc17dedda1e.png',
+    'https://i.ibb.co/YFh1XjZy/4393832a52139818fa9983852340f152.png',
+    'https://i.ibb.co/Q79KcXm6/21f589fb6088af7c513c29afc2ae9059.png'
+  ];
+
+  const icons = iconUrls.map(url => L.icon({
+    iconUrl: url,
+    iconSize: [20, 20],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -60]
+  }));
+
+  const points = [
+    {
+      coords: [42.829466, 74.594220],
+      icon: icons[0],
+      html: `
+        <strong>Площадка "Ынтымак"</strong><br>
+        🏀 Отличная площадка, с асфальтом.<br>
+        <img src="https://i.ibb.co/chPVns5K/83e1368238c17f32ce33ff9419f85061.jpg" width="100" style="margin-top: 8px; border-radius: 10px;" />
+        <p style="margin-top: 5px;">Хорошая площадка, асфальт нормальный.</p>
+      `
+    },
+    {
+      coords: [42.810456792759624, 74.56849559715907],
+      icon: icons[1],
+      html: `
+        <strong>Площадка Ынтымак</strong><br>
+        ⚽ Футбольное поле, сетка, искуссте покрытие<br>
+        <img src="https://i.ibb.co/vxZV5yx/sample2.jpg" width="100">
+      `
+    },
+    {
+      coords: [42.829441, 74.594900],
+      icon: icons[3],
+      html: `
+        <strong>Площадка Ынтымак</strong><br>
+        ⚽ Футбольное поле, сетка, искусственное покрытие<br>
+        <img src="https://i.ibb.co/YFh1XjZy/4393832a52139818fa9983852340f152.png" width="100">
+        <p style="margin-top:5px;">Площадка с воротами и освещением</p>
+      `
+    },
+    {
+      coords: [42.829500, 74.594450],
+      icon: icons[4],
+      html: `
+        <strong>Площадка Ынтымак</strong><br>
+        ⚽ Футбольное поле, сетка, искусственное покрытие<br>
+        <img src="https://i.ibb.co/vxZV5yx/sample2.jpg" width="100">
+      `
+    }
+  ];
+
+  function calculateDistance(latlng1, latlng2) {
+    return map.distance(latlng1, latlng2); // в метрах
+  }
+
+  points.forEach(point => {
+    const marker = L.marker(point.coords, { icon: point.icon });
+
+    marker.on('click', function (e) {
+      let popupText = point.html;
+
+      if (userLatLng) {
+        const distance = calculateDistance(userLatLng, e.latlng).toFixed(0);
+        popupText += `<br><strong>Расстояние:</strong> ${distance} м`;
+      } else {
+        popupText += `<br><em>Геолокация не определена</em>`;
+      }
+
+      marker.bindPopup(popupText).openPopup();
+    });
+
+    markers.addLayer(marker);
+  });
+
+  map.addLayer(markers);
+</script>
